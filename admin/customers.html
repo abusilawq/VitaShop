@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers — VitaShop Admin</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+</head>
+<body class="admin-body">
+
+<div id="admin-sidebar"></div>
+
+<main class="admin-main">
+  <div id="admin-header"></div>
+
+  <div class="admin-content">
+
+    <!-- KPI summary -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Total Customers</span>
+          <span class="kpi-icon blue">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiCustomers">0</div>
+        <div class="kpi-change positive">Registered users</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">VIP Members</span>
+          <span class="kpi-icon orange">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiVIP">0</div>
+        <div class="kpi-change">Loyal customers</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">New (Last 30d)</span>
+          <span class="kpi-icon green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiNew">0</div>
+        <div class="kpi-change positive">Sign-ups</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Avg. Customer Value</span>
+          <span class="kpi-icon purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiACV">RM 0</div>
+        <div class="kpi-change">Lifetime spend</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="admin-toolbar">
+      <div class="admin-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+        <input type="text" id="custSearch" placeholder="Search by name or email...">
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+        <select class="admin-select" id="statusFilter">
+          <option value="">All segments</option>
+          <option value="VIP">VIP</option>
+          <option value="Active">Active</option>
+          <option value="New">New</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="exportCustomers()" style="padding:0.5rem 1rem;font-size:0.8125rem">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Customers Table -->
+    <div class="admin-card">
+      <div class="card-head">
+        <div>
+          <h3>Customer Directory</h3>
+          <span id="custCountLabel">0 customers</span>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Email</th>
+              <th>Joined</th>
+              <th>Orders</th>
+              <th>Total Spent</th>
+              <th>Segment</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="custTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Customer Detail Modal -->
+<div class="modal-backdrop" id="custModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="custModalTitle">Customer Details</h3>
+      <button class="table-action" onclick="closeModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="custModalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()" style="padding:0.5rem 1rem">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+  let allCustomers = [];
+
+  if (initAdmin('customers', 'Customers')) {
+    refresh();
+    document.getElementById('custSearch').addEventListener('input', renderTable);
+    document.getElementById('statusFilter').addEventListener('change', renderTable);
+
+    // Sidebar nav badge for processing orders
+    const orders = Store.get('vs_orders', []);
+    const processingCount = orders.filter(o => o.status === 'processing').length;
+    const badge = document.getElementById('newOrderBadge');
+    if (badge && processingCount > 0) {
+      badge.textContent = processingCount;
+      badge.style.display = 'inline-flex';
+    }
+  }
+
+  function refresh() {
+    allCustomers = Store.get('vs_customers', []);
+
+    document.getElementById('kpiCustomers').textContent = allCustomers.length;
+    document.getElementById('kpiVIP').textContent = allCustomers.filter(c => c.status === 'VIP').length;
+    document.getElementById('kpiNew').textContent = allCustomers.filter(c => c.status === 'New').length;
+    const totalSpent = allCustomers.reduce((s, c) => s + c.spent, 0);
+    const avg = allCustomers.length ? totalSpent / allCustomers.length : 0;
+    document.getElementById('kpiACV').textContent = fmt(avg);
+
+    renderTable();
+  }
+
+  function renderTable() {
+    const q = document.getElementById('custSearch').value.toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+
+    const filtered = allCustomers.filter(c => {
+      const matchQ = !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q);
+      const matchS = !status || c.status === status;
+      return matchQ && matchS;
+    });
+
+    document.getElementById('custCountLabel').textContent = `${filtered.length} ${filtered.length === 1 ? 'customer' : 'customers'}`;
+
+    if (filtered.length === 0) {
+      document.getElementById('custTbody').innerHTML = `
+        <tr><td colspan="7" class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg>
+          <h4>No customers found</h4>
+          <p>Try adjusting your filters or search query.</p>
+        </td></tr>`;
+      return;
+    }
+
+    document.getElementById('custTbody').innerHTML = filtered.map(c => {
+      const initials = c.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+      const pillClass = c.status === 'VIP' ? 'cust-vip' : c.status === 'Active' ? 'cust-active' : 'cust-new';
+      return `
+      <tr>
+        <td>
+          <div class="table-product">
+            <div class="admin-avatar" style="width:38px;height:38px;font-size:0.875rem">${initials}</div>
+            <div>
+              <strong>${c.name}</strong>
+              <span>${c.id}</span>
+            </div>
+          </div>
+        </td>
+        <td><span style="font-size:0.875rem">${c.email}</span></td>
+        <td><span style="font-size:0.8125rem">${new Date(c.joined).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span></td>
+        <td><strong>${c.orders}</strong></td>
+        <td><strong>${fmt(c.spent)}</strong></td>
+        <td><span class="cust-pill ${pillClass}">${c.status}</span></td>
+        <td style="text-align:right">
+          <button class="table-action" onclick="viewCustomer('${c.id}')" title="View profile">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button class="table-action" onclick="emailCustomer('${c.email}')" title="Send email">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function viewCustomer(id) {
+    const c = allCustomers.find(x => x.id === id);
+    if (!c) return;
+
+    // Find customer's orders
+    const orders = Store.get('vs_orders', []).filter(o => o.email === c.email);
+    const initials = c.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+    const pillClass = c.status === 'VIP' ? 'cust-vip' : c.status === 'Active' ? 'cust-active' : 'cust-new';
+
+    document.getElementById('custModalTitle').textContent = c.name;
+    document.getElementById('custModalBody').innerHTML = `
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid #e8eaee">
+        <div class="admin-avatar" style="width:64px;height:64px;font-size:1.5rem">${initials}</div>
+        <div>
+          <h3 style="font-family:var(--font-display);color:var(--forest-900);margin:0 0 0.25rem">${c.name}</h3>
+          <span style="color:var(--ink-mute);font-size:0.875rem">${c.email}</span>
+          <div style="margin-top:0.5rem"><span class="cust-pill ${pillClass}">${c.status}</span></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+        <div style="background:var(--cream-100);padding:1rem;border-radius:var(--radius-sm)">
+          <div style="font-size:0.75rem;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.25rem">Total Orders</div>
+          <div style="font-family:var(--font-display);font-size:1.5rem;color:var(--forest-900);font-weight:600">${c.orders}</div>
+        </div>
+        <div style="background:var(--cream-100);padding:1rem;border-radius:var(--radius-sm)">
+          <div style="font-size:0.75rem;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.25rem">Total Spent</div>
+          <div style="font-family:var(--font-display);font-size:1.5rem;color:var(--forest-900);font-weight:600">${fmt(c.spent)}</div>
+        </div>
+      </div>
+
+      <table class="order-detail-table">
+        <tr><td>Customer ID</td><td><strong>${c.id}</strong></td></tr>
+        <tr><td>Member since</td><td>${new Date(c.joined).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</td></tr>
+        <tr><td>Avg. order value</td><td>${fmt(c.orders > 0 ? c.spent / c.orders : 0)}</td></tr>
+      </table>
+
+      ${orders.length > 0 ? `
+        <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--forest-900);margin:1.25rem 0 0.5rem">Recent Orders (${orders.length})</h4>
+        ${orders.slice(0, 5).map(o => `
+          <div class="detail-item">
+            <div>
+              <strong>${o.id}</strong>
+              <span style="display:block;font-size:0.75rem;color:var(--ink-mute)">${new Date(o.date).toLocaleDateString('en-GB')}</span>
+            </div>
+            <div style="text-align:right">
+              <strong>${fmt(o.total)}</strong>
+              <span class="status-pill status-${o.status}" style="display:block;margin-top:0.25rem">${o.status}</span>
+            </div>
+          </div>
+        `).join('')}
+      ` : ''}
+    `;
+    document.getElementById('custModal').classList.add('show');
+  }
+
+  function emailCustomer(email) {
+    window.location.href = `mailto:${email}?subject=From VitaShop`;
+    showToast('Email client opened');
+  }
+
+  function closeModal() {
+    document.getElementById('custModal').classList.remove('show');
+  }
+
+  function exportCustomers() {
+    const rows = [['ID', 'Name', 'Email', 'Joined', 'Orders', 'Total Spent', 'Segment']];
+    allCustomers.forEach(c => {
+      rows.push([c.id, c.name, c.email, c.joined, c.orders, c.spent, c.status]);
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `vitashop-customers-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    showToast('Exported to CSV');
+  }
+
+  document.getElementById('custModal').addEventListener('click', e => {
+    if (e.target.id === 'custModal') closeModal();
+  });
+</script>
+
+</body>
+</html>

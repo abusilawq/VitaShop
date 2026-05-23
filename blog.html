@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wellness Journal — VitaShop Blog</title>
+  <meta name="description" content="Read the latest articles on nutrition, fitness, herbal remedies, and holistic wellness from VitaShop experts.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Home</a> <span>›</span> <span>Wellness Journal</span></div>
+    <span class="eyebrow">— The Journal</span>
+    <h1 class="page-title">Wellness <em>Journal</em></h1>
+    <p class="page-subtitle">Science-backed health insights, supplement guides, and wellness inspiration from our team of nutritionists and wellness experts.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+
+    <!-- Featured article -->
+    <article class="featured-article" id="featuredArticle"></article>
+
+    <!-- Category filter -->
+    <div class="blog-filters">
+      <button class="blog-filter active" data-cat="">All Articles</button>
+      <button class="blog-filter" data-cat="Nutrition">Nutrition</button>
+      <button class="blog-filter" data-cat="Fitness">Fitness</button>
+      <button class="blog-filter" data-cat="Wellness">Wellness</button>
+      <button class="blog-filter" data-cat="Immunity">Immunity</button>
+      <button class="blog-filter" data-cat="Beauty">Beauty</button>
+    </div>
+
+    <!-- Articles grid -->
+    <div class="article-grid" id="articlesGrid"></div>
+
+    <!-- Newsletter -->
+    <div class="blog-newsletter">
+      <div class="bn-content">
+        <span class="eyebrow" style="color:var(--vital-400)">— Stay informed</span>
+        <h2>Get wellness tips in your inbox</h2>
+        <p>Subscribe for weekly articles, exclusive discounts, and early access to new products. No spam, ever.</p>
+      </div>
+      <form class="bn-form" onsubmit="event.preventDefault(); showToast('Subscribed! Check your inbox 🌿'); this.reset();">
+        <input type="email" placeholder="your@email.com" required>
+        <button type="submit" class="btn btn-vital">Subscribe</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  initLayout('');
+
+  // Extended blog articles list
+  const ALL_ARTICLES = [
+    ...SAMPLE_ARTICLES,
+    {
+      image: 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=800&auto=format&fit=crop',
+      category: 'Immunity',
+      date: 'April 28, 2026',
+      title: 'Vitamin D & Immunity: What Malaysians Need to Know',
+      excerpt: 'Despite our sunny climate, 60% of Malaysians are vitamin D deficient. Here\'s why and what to do about it.'
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&auto=format&fit=crop',
+      category: 'Beauty',
+      date: 'April 22, 2026',
+      title: 'Collagen Peptides: Hype or Holy Grail?',
+      excerpt: 'We break down the science of collagen supplementation and what to look for in a quality product.'
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&auto=format&fit=crop',
+      category: 'Nutrition',
+      date: 'April 15, 2026',
+      title: 'Probiotics 101: The Ultimate Gut Health Guide',
+      excerpt: 'Understanding CFUs, strains, and what to look for when choosing a probiotic that actually works.'
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1532009324734-20a7a5813719?w=800&auto=format&fit=crop',
+      category: 'Fitness',
+      date: 'April 8, 2026',
+      title: 'When to Take Your Pre-Workout for Best Results',
+      excerpt: 'Timing matters. Learn the science of when to consume pre-workout for maximum energy and pump.'
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&auto=format&fit=crop',
+      category: 'Wellness',
+      date: 'April 1, 2026',
+      title: 'Stress Management Through Adaptogens',
+      excerpt: 'Ashwagandha, rhodiola, and reishi: how these ancient herbs work in the modern stressful world.'
+    }
+  ];
+
+  // Render featured (first article)
+  const f = ALL_ARTICLES[0];
+  document.getElementById('featuredArticle').innerHTML = `
+    <a href="#" class="featured-link">
+      <div class="featured-img">
+        <img src="${f.image}" alt="${f.title}">
+        <span class="featured-badge">Featured</span>
+      </div>
+      <div class="featured-body">
+        <div class="article-meta"><strong>${f.category}</strong> · ${f.date}</div>
+        <h2>${f.title}</h2>
+        <p>${f.excerpt}</p>
+        <span class="read-more">Read article →</span>
+      </div>
+    </a>
+  `;
+
+  // Render articles
+  function renderArticles(cat = '') {
+    const list = cat ? ALL_ARTICLES.filter(a => a.category === cat) : ALL_ARTICLES.slice(1);
+    document.getElementById('articlesGrid').innerHTML = list.map(a => `
+      <a href="#" class="article-card">
+        <div class="article-img"><img src="${a.image}" alt="${a.title}" loading="lazy"></div>
+        <div class="article-body">
+          <div class="article-meta"><strong>${a.category}</strong> · ${a.date}</div>
+          <h3>${a.title}</h3>
+          <p>${a.excerpt}</p>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  renderArticles();
+
+  // Filter handlers
+  document.querySelectorAll('.blog-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.blog-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderArticles(btn.dataset.cat);
+    });
+  });
+</script>
+
+</body>
+</html>

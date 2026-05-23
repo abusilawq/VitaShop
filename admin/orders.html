@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders — VitaShop Admin</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+</head>
+<body class="admin-body">
+
+<div id="admin-sidebar"></div>
+
+<main class="admin-main">
+  <div id="admin-header"></div>
+
+  <div class="admin-content">
+
+    <!-- KPI summary -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Total Orders</span>
+          <span class="kpi-icon blue">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiTotal">0</div>
+        <div class="kpi-change">All time</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Processing</span>
+          <span class="kpi-icon orange">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiProcessing">0</div>
+        <div class="kpi-change">Awaiting fulfillment</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Shipped</span>
+          <span class="kpi-icon purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiShipped">0</div>
+        <div class="kpi-change">In transit</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Total Revenue</span>
+          <span class="kpi-icon green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiRevenue">RM 0</div>
+        <div class="kpi-change positive">From all orders</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="admin-toolbar">
+      <div class="admin-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+        <input type="text" id="orderSearch" placeholder="Search by order ID, customer name, email...">
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+        <select class="admin-select" id="statusFilter">
+          <option value="">All status</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="exportOrders()" style="padding:0.5rem 1rem;font-size:0.8125rem">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="admin-card">
+      <div class="card-head">
+        <div>
+          <h3>All Orders</h3>
+          <span id="ordersCountLabel">0 orders</span>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th style="width:100px;text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Order Detail Modal -->
+<div class="modal-backdrop" id="orderModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalOrderTitle">Order Details</h3>
+      <button class="table-action" onclick="closeModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()" style="padding:0.5rem 1rem">Close</button>
+      <button class="btn btn-primary" id="markShippedBtn" style="padding:0.5rem 1rem">Mark as Shipped</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+  let currentOrderId = null;
+  let allOrders = [];
+
+  if (initAdmin('orders', 'Orders')) {
+    refreshOrders();
+    document.getElementById('orderSearch').addEventListener('input', renderTable);
+    document.getElementById('statusFilter').addEventListener('change', renderTable);
+  }
+
+  function refreshOrders() {
+    allOrders = Store.get('vs_orders', []);
+
+    // KPIs
+    document.getElementById('kpiTotal').textContent = allOrders.length;
+    document.getElementById('kpiProcessing').textContent = allOrders.filter(o => o.status === 'processing').length;
+    document.getElementById('kpiShipped').textContent = allOrders.filter(o => o.status === 'shipped').length;
+    document.getElementById('kpiRevenue').textContent = fmt(allOrders.reduce((s, o) => s + (o.total || 0), 0));
+
+    // Sidebar nav badge
+    const processingCount = allOrders.filter(o => o.status === 'processing').length;
+    const badge = document.getElementById('newOrderBadge');
+    if (badge && processingCount > 0) {
+      badge.textContent = processingCount;
+      badge.style.display = 'inline-flex';
+    }
+
+    renderTable();
+  }
+
+  function renderTable() {
+    const q = document.getElementById('orderSearch').value.toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+
+    let filtered = allOrders.filter(o => {
+      const matchesQ = !q || o.id.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q) || (o.email || '').toLowerCase().includes(q);
+      const matchesS = !status || o.status === status;
+      return matchesQ && matchesS;
+    });
+
+    document.getElementById('ordersCountLabel').textContent = `${filtered.length} ${filtered.length === 1 ? 'order' : 'orders'}`;
+
+    if (filtered.length === 0) {
+      document.getElementById('ordersTbody').innerHTML = `
+        <tr><td colspan="8" class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+          <h4>No orders found</h4>
+          <p>Try adjusting your filters or search query.</p>
+        </td></tr>`;
+      return;
+    }
+
+    document.getElementById('ordersTbody').innerHTML = filtered.map(o => `
+      <tr>
+        <td><strong style="color:var(--forest-900)">${o.id}</strong></td>
+        <td>
+          <div>${o.customer}</div>
+          <div style="font-size:0.75rem;color:var(--ink-mute)">${o.email || ''}</div>
+        </td>
+        <td>${o.items.length} item${o.items.length > 1 ? 's' : ''}</td>
+        <td><strong>${fmt(o.total)}</strong></td>
+        <td><span style="font-size:0.75rem;color:var(--ink-mute)">${o.payment}</span></td>
+        <td>
+          <select class="admin-select" onchange="updateOrderStatus('${o.id}', this.value)" style="padding:0.25rem 0.5rem;font-size:0.75rem">
+            <option value="processing" ${o.status === 'processing' ? 'selected' : ''}>Processing</option>
+            <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+            <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+            <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+          </select>
+        </td>
+        <td><span style="font-size:0.8125rem">${new Date(o.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span></td>
+        <td style="text-align:right">
+          <button class="table-action" onclick="viewOrder('${o.id}')" title="View details">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button class="table-action danger" onclick="deleteOrder('${o.id}')" title="Delete">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function viewOrder(orderId) {
+    const o = allOrders.find(x => x.id === orderId);
+    if (!o) return;
+    currentOrderId = orderId;
+
+    document.getElementById('modalOrderTitle').textContent = o.id;
+    document.getElementById('modalBody').innerHTML = `
+      <div style="margin-bottom:1.25rem">
+        <span class="status-pill status-${o.status}">${o.status}</span>
+      </div>
+
+      <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--forest-900);margin-bottom:0.5rem">Customer</h4>
+      <table class="order-detail-table">
+        <tr><td>Name</td><td><strong>${o.customer}</strong></td></tr>
+        <tr><td>Email</td><td>${o.email || '—'}</td></tr>
+        <tr><td>Address</td><td>${o.address || '—'}</td></tr>
+        <tr><td>Payment</td><td>${o.payment}</td></tr>
+        <tr><td>Date</td><td>${new Date(o.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</td></tr>
+      </table>
+
+      <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--forest-900);margin:1.25rem 0 0.5rem">Items</h4>
+      ${o.items.map(it => `
+        <div class="detail-item">
+          <span>${it.qty} × ${it.name}</span>
+          <strong>${fmt(it.qty * it.price)}</strong>
+        </div>
+      `).join('')}
+
+      <div class="detail-item" style="margin-top:0.75rem;padding-top:0.75rem;border-top:2px solid var(--forest-700)">
+        <span style="font-family:var(--font-display);font-size:1rem;color:var(--forest-900)">Total</span>
+        <strong style="font-family:var(--font-display);font-size:1.25rem;color:var(--forest-700)">${fmt(o.total)}</strong>
+      </div>
+    `;
+
+    document.getElementById('markShippedBtn').textContent = o.status === 'processing' ? 'Mark as Shipped' :
+                                                            o.status === 'shipped' ? 'Mark as Delivered' :
+                                                            'Reopen Order';
+    document.getElementById('markShippedBtn').onclick = () => {
+      const next = o.status === 'processing' ? 'shipped' :
+                   o.status === 'shipped' ? 'delivered' : 'processing';
+      OrderAdmin.updateStatus(orderId, next);
+      showToast(`Order ${next}`);
+      closeModal();
+      refreshOrders();
+    };
+
+    document.getElementById('orderModal').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('orderModal').classList.remove('show');
+  }
+
+  function updateOrderStatus(orderId, status) {
+    OrderAdmin.updateStatus(orderId, status);
+    showToast(`Status updated to ${status}`);
+    refreshOrders();
+  }
+
+  function deleteOrder(orderId) {
+    if (!confirm(`Delete order ${orderId}? This cannot be undone.`)) return;
+    OrderAdmin.delete(orderId);
+    showToast('Order deleted');
+    refreshOrders();
+  }
+
+  function exportOrders() {
+    const rows = [
+      ['Order ID', 'Customer', 'Email', 'Total', 'Status', 'Payment', 'Date', 'Address']
+    ];
+    allOrders.forEach(o => {
+      rows.push([o.id, o.customer, o.email || '', o.total, o.status, o.payment, o.date, o.address || '']);
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vitashop-orders-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    showToast('Exported to CSV');
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('orderModal').addEventListener('click', e => {
+    if (e.target.id === 'orderModal') closeModal();
+  });
+</script>
+
+</body>
+</html>

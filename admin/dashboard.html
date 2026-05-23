@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — VitaShop Admin</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+</head>
+<body class="admin-body">
+
+<div id="admin-sidebar"></div>
+
+<main class="admin-main">
+  <div id="admin-header"></div>
+
+  <div class="admin-content">
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Revenue (Today)</span>
+          <span class="kpi-icon green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiRevenue">RM 0</div>
+        <div class="kpi-change positive">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M7 17l5-5 5 5M7 7l5-5 5 5"/></svg>
+          +18.4% vs yesterday
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Orders (Today)</span>
+          <span class="kpi-icon blue">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiOrders">0</div>
+        <div class="kpi-change positive">+12.7% vs yesterday</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">New Customers</span>
+          <span class="kpi-icon orange">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiCustomers">0</div>
+        <div class="kpi-change positive">+24.0% this week</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Avg. Order Value</span>
+          <span class="kpi-icon purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiAOV">RM 0</div>
+        <div class="kpi-change positive">+5.2% vs last month</div>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="admin-row">
+      <div class="admin-card chart-card">
+        <div class="card-head">
+          <div>
+            <h3>Revenue (Last 7 Days)</h3>
+            <span>Daily sales performance</span>
+          </div>
+          <select class="admin-select">
+            <option>Last 7 days</option>
+            <option>Last 30 days</option>
+            <option>Last 90 days</option>
+          </select>
+        </div>
+        <canvas id="revenueChart" height="100"></canvas>
+      </div>
+
+      <div class="admin-card">
+        <div class="card-head">
+          <div>
+            <h3>Sales by Category</h3>
+            <span>This month</span>
+          </div>
+        </div>
+        <canvas id="categoryChart" height="180"></canvas>
+      </div>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="admin-row two-thirds">
+      <div class="admin-card">
+        <div class="card-head">
+          <div>
+            <h3>Recent Orders</h3>
+            <span>Latest customer purchases</span>
+          </div>
+          <a href="orders.html" class="link-btn">View all →</a>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="recentOrdersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="card-head">
+          <div>
+            <h3>Top Products</h3>
+            <span>Best sellers this month</span>
+          </div>
+        </div>
+        <div class="top-products" id="topProducts"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+  if (initAdmin('dashboard', 'Dashboard')) {
+    // Get orders
+    const orders = Store.get('vs_orders', []);
+    const customers = Store.get('vs_customers', []);
+    const products = getProducts();
+
+    // Compute KPIs
+    const todayRevenue = orders.slice(0, 4).reduce((s, o) => s + (o.total || 0), 0);
+    const todayOrders = 4;
+    const newCustomers = customers.filter(c => c.status === 'New').length;
+    const aov = todayOrders > 0 ? todayRevenue / todayOrders : 0;
+
+    document.getElementById('kpiRevenue').textContent = fmt(todayRevenue);
+    document.getElementById('kpiOrders').textContent = todayOrders;
+    document.getElementById('kpiCustomers').textContent = newCustomers;
+    document.getElementById('kpiAOV').textContent = fmt(aov);
+
+    // Revenue chart
+    new Chart(document.getElementById('revenueChart'), {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Revenue',
+          data: [820, 1240, 980, 1480, 1620, 2110, 1872],
+          fill: true,
+          tension: 0.4,
+          borderColor: '#0f3d2e',
+          backgroundColor: 'rgba(15, 61, 46, 0.08)',
+          pointBackgroundColor: '#0f3d2e',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 5
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { grid: { color: '#f5f1e8' }, ticks: { callback: v => 'RM ' + v } },
+          x: { grid: { display: false } }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+
+    // Category chart
+    const catData = {};
+    products.forEach(p => { catData[p.categoryLabel] = (catData[p.categoryLabel] || 0) + p.reviews; });
+
+    new Chart(document.getElementById('categoryChart'), {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(catData),
+        datasets: [{
+          data: Object.values(catData),
+          backgroundColor: ['#0f3d2e', '#228b6e', '#ff6b35', '#e1c391', '#d4cba3', '#8fb89a']
+        }]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14 } } },
+        cutout: '60%',
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+
+    // Recent orders
+    document.getElementById('recentOrdersBody').innerHTML = orders.slice(0, 5).map(o => `
+      <tr>
+        <td><strong>${o.id}</strong></td>
+        <td>${o.customer}</td>
+        <td>${fmt(o.total)}</td>
+        <td><span class="status-pill status-${o.status}">${o.status}</span></td>
+        <td>${new Date(o.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>
+      </tr>
+    `).join('');
+
+    // Top products
+    document.getElementById('topProducts').innerHTML = products
+      .slice()
+      .sort((a, b) => b.reviews - a.reviews)
+      .slice(0, 5)
+      .map((p, i) => `
+        <div class="top-product-item">
+          <span class="rank">#${i + 1}</span>
+          <img src="${p.image}" alt="${p.name}">
+          <div class="top-prod-info">
+            <strong>${p.name}</strong>
+            <span>${p.reviews} units · ${fmt(p.price)}</span>
+          </div>
+          <div class="top-prod-bar">
+            <div class="bar-track"><div class="bar-fill" style="width: ${Math.min(100, (p.reviews / 5))}%"></div></div>
+          </div>
+        </div>
+      `).join('');
+
+    // Set order badge
+    const processingCount = orders.filter(o => o.status === 'processing').length;
+    if (processingCount > 0) {
+      document.getElementById('newOrderBadge').textContent = processingCount;
+      document.getElementById('newOrderBadge').style.display = 'inline-flex';
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products — VitaShop Admin</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+</head>
+<body class="admin-body">
+
+<div id="admin-sidebar"></div>
+
+<main class="admin-main">
+  <div id="admin-header"></div>
+
+  <div class="admin-content">
+
+    <!-- KPI summary -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Total Products</span>
+          <span class="kpi-icon blue">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4 8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiProducts">0</div>
+        <div class="kpi-change">Live in store</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">In Stock</span>
+          <span class="kpi-icon green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiInStock">0</div>
+        <div class="kpi-change positive">Ready to ship</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Low Stock</span>
+          <span class="kpi-icon orange">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiLowStock">0</div>
+        <div class="kpi-change">Re-stock soon (≤30)</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Avg. Rating</span>
+          <span class="kpi-icon purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value" id="kpiRating">0.0</div>
+        <div class="kpi-change positive">Customer reviews</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="admin-toolbar">
+      <div class="admin-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+        <input type="text" id="productSearch" placeholder="Search by name or category...">
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+        <select class="admin-select" id="categoryFilter">
+          <option value="">All categories</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="openAddModal()" style="padding:0.5rem 1rem;font-size:0.8125rem">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add Product
+        </button>
+      </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="admin-card">
+      <div class="card-head">
+        <div>
+          <h3>Product Catalog</h3>
+          <span id="productsCountLabel">0 products</span>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Rating</th>
+              <th>Status</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Add/Edit Product Modal -->
+<div class="modal-backdrop" id="productModal">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-head">
+      <h3 id="modalTitle">Add New Product</h3>
+      <button class="table-action" onclick="closeModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="productForm" class="product-form">
+        <div class="form-field form-full">
+          <label>Product Name</label>
+          <input type="text" id="pName" required>
+        </div>
+
+        <div class="form-field">
+          <label>Category</label>
+          <select id="pCategory" required>
+            <option value="vitamins">Vitamins</option>
+            <option value="fitness">Fitness</option>
+            <option value="herbal">Herbal</option>
+            <option value="immunity">Immunity</option>
+            <option value="beauty">Beauty</option>
+            <option value="digestive">Digestive</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Tag</label>
+          <select id="pTag">
+            <option value="">No tag</option>
+            <option value="BESTSELLER">Bestseller</option>
+            <option value="NEW">New</option>
+            <option value="SALE">Sale</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Price (RM)</label>
+          <input type="number" step="0.01" id="pPrice" required>
+        </div>
+
+        <div class="form-field">
+          <label>Old Price (optional)</label>
+          <input type="number" step="0.01" id="pOldPrice">
+        </div>
+
+        <div class="form-field">
+          <label>Stock Quantity</label>
+          <input type="number" id="pStock" required>
+        </div>
+
+        <div class="form-field">
+          <label>Rating (0–5)</label>
+          <input type="number" step="0.1" min="0" max="5" id="pRating" value="4.5">
+        </div>
+
+        <div class="form-field form-full">
+          <label>Image URL</label>
+          <input type="url" id="pImage" placeholder="https://images.unsplash.com/...">
+        </div>
+
+        <div class="form-field form-full">
+          <label>Short Description</label>
+          <input type="text" id="pShort" required>
+        </div>
+
+        <div class="form-field form-full">
+          <label>Full Description</label>
+          <textarea id="pDesc" rows="3" style="width:100%;padding:0.625rem;border:1px solid #e8eaee;border-radius:6px;font-family:inherit;font-size:0.9375rem;resize:vertical"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()" style="padding:0.5rem 1rem">Cancel</button>
+      <button class="btn btn-primary" id="saveBtn" onclick="saveProduct()" style="padding:0.5rem 1rem">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+  let editingId = null;
+  let allProducts = [];
+
+  if (initAdmin('products', 'Products')) {
+    // Populate category filter
+    const catFilter = document.getElementById('categoryFilter');
+    CATEGORIES.forEach(c => {
+      catFilter.innerHTML += `<option value="${c.id}">${c.label}</option>`;
+    });
+
+    refresh();
+    document.getElementById('productSearch').addEventListener('input', renderTable);
+    document.getElementById('categoryFilter').addEventListener('change', renderTable);
+
+    // Sidebar nav badge for processing orders
+    const orders = Store.get('vs_orders', []);
+    const processingCount = orders.filter(o => o.status === 'processing').length;
+    const badge = document.getElementById('newOrderBadge');
+    if (badge && processingCount > 0) {
+      badge.textContent = processingCount;
+      badge.style.display = 'inline-flex';
+    }
+  }
+
+  function refresh() {
+    allProducts = getProducts();
+
+    document.getElementById('kpiProducts').textContent = allProducts.length;
+    document.getElementById('kpiInStock').textContent = allProducts.filter(p => p.stock > 30).length;
+    document.getElementById('kpiLowStock').textContent = allProducts.filter(p => p.stock > 0 && p.stock <= 30).length;
+    const avg = allProducts.length ? (allProducts.reduce((s,p) => s + p.rating, 0) / allProducts.length).toFixed(1) : '0.0';
+    document.getElementById('kpiRating').textContent = avg + ' ★';
+
+    renderTable();
+  }
+
+  function renderTable() {
+    const q = document.getElementById('productSearch').value.toLowerCase();
+    const cat = document.getElementById('categoryFilter').value;
+
+    const filtered = allProducts.filter(p => {
+      const matchQ = !q || p.name.toLowerCase().includes(q) || p.categoryLabel.toLowerCase().includes(q);
+      const matchC = !cat || p.category === cat;
+      return matchQ && matchC;
+    });
+
+    document.getElementById('productsCountLabel').textContent = `${filtered.length} ${filtered.length === 1 ? 'product' : 'products'}`;
+
+    if (filtered.length === 0) {
+      document.getElementById('productsTbody').innerHTML = `
+        <tr><td colspan="7" class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 7l-8-4-8 4 8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/></svg>
+          <h4>No products found</h4>
+          <p>Try adjusting your filters or add a new product.</p>
+        </td></tr>`;
+      return;
+    }
+
+    document.getElementById('productsTbody').innerHTML = filtered.map(p => {
+      const stockClass = p.stock === 0 ? 'stock-out' : p.stock <= 30 ? 'stock-low' : 'stock-in';
+      const stockLabel = p.stock === 0 ? 'Out of stock' : p.stock <= 30 ? `Low (${p.stock})` : `In stock (${p.stock})`;
+      return `
+      <tr>
+        <td>
+          <div class="table-product">
+            <div class="table-product-img"><img src="${p.image}" alt=""></div>
+            <div>
+              <strong>${p.name}</strong>
+              <span>${p.id}</span>
+            </div>
+          </div>
+        </td>
+        <td>${p.categoryLabel}</td>
+        <td>
+          <strong>${fmt(p.price)}</strong>
+          ${p.oldPrice ? `<div style="font-size:0.75rem;color:var(--ink-mute);text-decoration:line-through">${fmt(p.oldPrice)}</div>` : ''}
+        </td>
+        <td><span class="stock-badge ${stockClass}">${stockLabel}</span></td>
+        <td>★ ${p.rating} <span style="color:var(--ink-mute);font-size:0.75rem">(${p.reviews})</span></td>
+        <td>${p.tag ? `<span class="status-pill" style="background:var(--cream-100);color:var(--forest-700)">${p.tag}</span>` : '<span style="color:var(--ink-mute);font-size:0.8125rem">—</span>'}</td>
+        <td style="text-align:right">
+          <a href="../product.html?id=${p.id}" target="_blank" class="table-action" title="View on site">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+          <button class="table-action" onclick="editProduct('${p.id}')" title="Edit">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="table-action danger" onclick="deleteProduct('${p.id}')" title="Delete">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function openAddModal() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Add New Product';
+    document.getElementById('productForm').reset();
+    document.getElementById('pRating').value = '4.5';
+    document.getElementById('productModal').classList.add('show');
+  }
+
+  function editProduct(id) {
+    const p = allProducts.find(x => x.id === id);
+    if (!p) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Product';
+    document.getElementById('pName').value = p.name;
+    document.getElementById('pCategory').value = p.category;
+    document.getElementById('pTag').value = p.tag || '';
+    document.getElementById('pPrice').value = p.price;
+    document.getElementById('pOldPrice').value = p.oldPrice || '';
+    document.getElementById('pStock').value = p.stock;
+    document.getElementById('pRating').value = p.rating;
+    document.getElementById('pImage').value = p.image;
+    document.getElementById('pShort').value = p.short;
+    document.getElementById('pDesc').value = p.description || '';
+    document.getElementById('productModal').classList.add('show');
+  }
+
+  function saveProduct() {
+    const cat = document.getElementById('pCategory').value;
+    const catObj = CATEGORIES.find(c => c.id === cat);
+
+    const data = {
+      name: document.getElementById('pName').value.trim(),
+      category: cat,
+      categoryLabel: catObj.label,
+      tag: document.getElementById('pTag').value || null,
+      price: parseFloat(document.getElementById('pPrice').value) || 0,
+      oldPrice: parseFloat(document.getElementById('pOldPrice').value) || null,
+      stock: parseInt(document.getElementById('pStock').value) || 0,
+      rating: parseFloat(document.getElementById('pRating').value) || 4.5,
+      image: document.getElementById('pImage').value.trim() || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop',
+      short: document.getElementById('pShort').value.trim(),
+      description: document.getElementById('pDesc').value.trim(),
+      reviews: 0
+    };
+
+    if (!data.name || !data.short) {
+      showToast('Please fill required fields');
+      return;
+    }
+
+    if (editingId) {
+      ProductAdmin.update(editingId, data);
+      showToast('Product updated');
+    } else {
+      ProductAdmin.add(data);
+      showToast('Product added');
+    }
+    closeModal();
+    refresh();
+  }
+
+  function deleteProduct(id) {
+    const p = allProducts.find(x => x.id === id);
+    if (!p) return;
+    if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
+    ProductAdmin.delete(id);
+    showToast('Product deleted');
+    refresh();
+  }
+
+  function closeModal() {
+    document.getElementById('productModal').classList.remove('show');
+  }
+
+  document.getElementById('productModal').addEventListener('click', e => {
+    if (e.target.id === 'productModal') closeModal();
+  });
+</script>
+
+</body>
+</html>

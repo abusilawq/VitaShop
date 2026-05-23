@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop All Products — VitaShop</title>
+  <meta name="description" content="Browse our full range of premium vitamins, supplements, and wellness products.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<!-- PAGE HEADER -->
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a> <span>›</span> <span>Shop</span>
+    </div>
+    <h1 class="page-title">All <em>Wellness Products</em></h1>
+    <p class="page-subtitle">Premium supplements, science-backed. Third-party tested. Loved by 50,000+ Malaysians.</p>
+  </div>
+</section>
+
+<!-- SHOP LAYOUT -->
+<section class="shop-section">
+  <div class="container">
+    <div class="shop-layout">
+
+      <!-- FILTER SIDEBAR -->
+      <aside class="shop-sidebar">
+        <div class="filter-group">
+          <h4 class="filter-title">Category</h4>
+          <div class="filter-list" id="catFilter"></div>
+        </div>
+
+        <div class="filter-group">
+          <h4 class="filter-title">Price Range</h4>
+          <div class="filter-list">
+            <label class="filter-item"><input type="radio" name="price" value="all" checked> <span>All prices</span></label>
+            <label class="filter-item"><input type="radio" name="price" value="0-50"> <span>Under RM 50</span></label>
+            <label class="filter-item"><input type="radio" name="price" value="50-100"> <span>RM 50 - 100</span></label>
+            <label class="filter-item"><input type="radio" name="price" value="100-150"> <span>RM 100 - 150</span></label>
+            <label class="filter-item"><input type="radio" name="price" value="150-9999"> <span>Above RM 150</span></label>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <h4 class="filter-title">Rating</h4>
+          <div class="filter-list">
+            <label class="filter-item"><input type="radio" name="rating" value="0" checked> <span>All ratings</span></label>
+            <label class="filter-item"><input type="radio" name="rating" value="4.5"> <span>★★★★★ 4.5 & up</span></label>
+            <label class="filter-item"><input type="radio" name="rating" value="4"> <span>★★★★☆ 4.0 & up</span></label>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <h4 class="filter-title">Special</h4>
+          <div class="filter-list">
+            <label class="filter-item"><input type="checkbox" id="filterSale"> <span>On Sale</span></label>
+            <label class="filter-item"><input type="checkbox" id="filterNew"> <span>New Arrivals</span></label>
+            <label class="filter-item"><input type="checkbox" id="filterStock"> <span>In Stock</span></label>
+          </div>
+        </div>
+
+        <button class="btn btn-outline btn-block" onclick="resetFilters()">Reset Filters</button>
+      </aside>
+
+      <!-- PRODUCTS AREA -->
+      <div class="shop-main">
+        <div class="shop-toolbar">
+          <div class="results-info">
+            Showing <strong id="resultCount">0</strong> products
+          </div>
+          <div class="toolbar-controls">
+            <div class="search-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+              <input type="text" id="searchInput" placeholder="Search products...">
+            </div>
+            <select id="sortSelect" class="sort-select">
+              <option value="featured">Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating">Top Rated</option>
+              <option value="name">Name A-Z</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="active-filters" id="activeFilters"></div>
+
+        <div class="products-grid" id="productsGrid"></div>
+
+        <div class="empty-state" id="emptyState" style="display:none">
+          <div class="empty-icon">🔍</div>
+          <h3>No products match your filters</h3>
+          <p>Try adjusting your filters or search for something else.</p>
+          <button class="btn btn-primary" onclick="resetFilters()">Reset Filters</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  initLayout('shop');
+
+  let currentFilters = {
+    category: 'all',
+    price: 'all',
+    rating: 0,
+    sale: false,
+    new: false,
+    stock: false,
+    search: '',
+    sort: 'featured'
+  };
+
+  // Read URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('cat')) currentFilters.category = urlParams.get('cat');
+  if (urlParams.get('q')) currentFilters.search = urlParams.get('q');
+
+  // Build category filter
+  function renderCatFilter() {
+    const html = `
+      <label class="filter-item"><input type="radio" name="cat" value="all" ${currentFilters.category === 'all' ? 'checked' : ''}> <span>All Products</span></label>
+      ${CATEGORIES.map(c => `
+        <label class="filter-item"><input type="radio" name="cat" value="${c.id}" ${currentFilters.category === c.id ? 'checked' : ''}> <span>${c.label}</span></label>
+      `).join('')}
+    `;
+    document.getElementById('catFilter').innerHTML = html;
+    document.querySelectorAll('input[name="cat"]').forEach(r => {
+      r.addEventListener('change', e => { currentFilters.category = e.target.value; applyFilters(); });
+    });
+  }
+
+  // Apply filters & render
+  function applyFilters() {
+    let products = getProducts();
+
+    if (currentFilters.category !== 'all') {
+      products = products.filter(p => p.category === currentFilters.category);
+    }
+
+    if (currentFilters.price !== 'all') {
+      const [min, max] = currentFilters.price.split('-').map(Number);
+      products = products.filter(p => p.price >= min && p.price <= max);
+    }
+
+    if (currentFilters.rating > 0) {
+      products = products.filter(p => p.rating >= currentFilters.rating);
+    }
+
+    if (currentFilters.sale) products = products.filter(p => p.tag === 'SALE' || p.oldPrice);
+    if (currentFilters.new) products = products.filter(p => p.tag === 'NEW');
+    if (currentFilters.stock) products = products.filter(p => p.stock > 0);
+
+    if (currentFilters.search) {
+      const q = currentFilters.search.toLowerCase();
+      products = products.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.short.toLowerCase().includes(q) ||
+        p.categoryLabel.toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    switch (currentFilters.sort) {
+      case 'price-asc': products.sort((a, b) => a.price - b.price); break;
+      case 'price-desc': products.sort((a, b) => b.price - a.price); break;
+      case 'rating': products.sort((a, b) => b.rating - a.rating); break;
+      case 'name': products.sort((a, b) => a.name.localeCompare(b.name)); break;
+    }
+
+    // Render
+    document.getElementById('resultCount').textContent = products.length;
+    const grid = document.getElementById('productsGrid');
+    const empty = document.getElementById('emptyState');
+
+    if (products.length === 0) {
+      grid.style.display = 'none';
+      empty.style.display = 'block';
+    } else {
+      grid.style.display = '';
+      empty.style.display = 'none';
+      grid.innerHTML = products.map(productCardHTML).join('');
+    }
+
+    renderActiveFilters();
+  }
+
+  function renderActiveFilters() {
+    const chips = [];
+    if (currentFilters.category !== 'all') {
+      const c = CATEGORIES.find(x => x.id === currentFilters.category);
+      if (c) chips.push({ label: c.label, key: 'category' });
+    }
+    if (currentFilters.price !== 'all') {
+      chips.push({ label: 'RM ' + currentFilters.price.replace('-', ' - '), key: 'price' });
+    }
+    if (currentFilters.rating > 0) chips.push({ label: '★ ' + currentFilters.rating + '+', key: 'rating' });
+    if (currentFilters.sale) chips.push({ label: 'On Sale', key: 'sale' });
+    if (currentFilters.new) chips.push({ label: 'New Arrivals', key: 'new' });
+    if (currentFilters.stock) chips.push({ label: 'In Stock', key: 'stock' });
+    if (currentFilters.search) chips.push({ label: 'Search: ' + currentFilters.search, key: 'search' });
+
+    document.getElementById('activeFilters').innerHTML = chips.map(c => `
+      <span class="filter-chip">${c.label} <button onclick="removeFilter('${c.key}')">×</button></span>
+    `).join('');
+  }
+
+  window.removeFilter = function(key) {
+    switch (key) {
+      case 'category': currentFilters.category = 'all'; break;
+      case 'price': currentFilters.price = 'all'; document.querySelector('input[name="price"][value="all"]').checked = true; break;
+      case 'rating': currentFilters.rating = 0; document.querySelector('input[name="rating"][value="0"]').checked = true; break;
+      case 'sale': currentFilters.sale = false; document.getElementById('filterSale').checked = false; break;
+      case 'new': currentFilters.new = false; document.getElementById('filterNew').checked = false; break;
+      case 'stock': currentFilters.stock = false; document.getElementById('filterStock').checked = false; break;
+      case 'search': currentFilters.search = ''; document.getElementById('searchInput').value = ''; break;
+    }
+    renderCatFilter();
+    applyFilters();
+  };
+
+  window.resetFilters = function() {
+    currentFilters = { category: 'all', price: 'all', rating: 0, sale: false, new: false, stock: false, search: '', sort: 'featured' };
+    document.getElementById('searchInput').value = '';
+    document.getElementById('sortSelect').value = 'featured';
+    document.getElementById('filterSale').checked = false;
+    document.getElementById('filterNew').checked = false;
+    document.getElementById('filterStock').checked = false;
+    document.querySelector('input[name="price"][value="all"]').checked = true;
+    document.querySelector('input[name="rating"][value="0"]').checked = true;
+    renderCatFilter();
+    applyFilters();
+  };
+
+  // Event bindings
+  renderCatFilter();
+  document.querySelectorAll('input[name="price"]').forEach(r => r.addEventListener('change', e => { currentFilters.price = e.target.value; applyFilters(); }));
+  document.querySelectorAll('input[name="rating"]').forEach(r => r.addEventListener('change', e => { currentFilters.rating = parseFloat(e.target.value); applyFilters(); }));
+  document.getElementById('filterSale').addEventListener('change', e => { currentFilters.sale = e.target.checked; applyFilters(); });
+  document.getElementById('filterNew').addEventListener('change', e => { currentFilters.new = e.target.checked; applyFilters(); });
+  document.getElementById('filterStock').addEventListener('change', e => { currentFilters.stock = e.target.checked; applyFilters(); });
+  document.getElementById('searchInput').addEventListener('input', e => { currentFilters.search = e.target.value; applyFilters(); });
+  document.getElementById('sortSelect').addEventListener('change', e => { currentFilters.sort = e.target.value; applyFilters(); });
+
+  if (currentFilters.search) document.getElementById('searchInput').value = currentFilters.search;
+
+  applyFilters();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart — VitaShop</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<section class="page-hero compact">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Home</a> <span>›</span> <span>Cart</span></div>
+    <h1 class="page-title">Your <em>Cart</em></h1>
+  </div>
+</section>
+
+<section class="cart-section">
+  <div class="container">
+    <div id="cartContent"></div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  initLayout('');
+
+  function renderCart() {
+    const items = Cart.get();
+    const container = document.getElementById('cartContent');
+
+    if (items.length === 0) {
+      container.innerHTML = `
+        <div class="empty-cart">
+          <div class="empty-cart-icon">🛒</div>
+          <h2>Your cart is empty</h2>
+          <p>Looks like you haven't added anything yet. Discover our bestsellers below.</p>
+          <a href="shop.html" class="btn btn-primary btn-lg">Start Shopping</a>
+        </div>
+      `;
+      return;
+    }
+
+    const subtotal = Cart.subtotal();
+    const shipping = subtotal >= 150 ? 0 : 12;
+    const tax = subtotal * 0.06;
+    const total = subtotal + shipping + tax;
+
+    container.innerHTML = `
+      <div class="cart-grid">
+        <div class="cart-items">
+          <div class="cart-head">
+            <h3>Items (${Cart.count()})</h3>
+            <button class="link-btn" onclick="if(confirm('Clear cart?')){Cart.clear();renderCart();}">Clear cart</button>
+          </div>
+
+          ${items.map(item => {
+            const p = getProduct(item.id);
+            if (!p) return '';
+            return `
+              <div class="cart-item">
+                <a href="product.html?id=${p.id}" class="cart-item-img">
+                  <img src="${p.image}" alt="${p.name}">
+                </a>
+                <div class="cart-item-info">
+                  <span class="cart-item-cat">${p.categoryLabel}</span>
+                  <a href="product.html?id=${p.id}"><h4>${p.name}</h4></a>
+                  ${item.size ? `<span class="cart-item-size">Size: ${item.size}</span>` : ''}
+                  <div class="cart-item-bottom">
+                    <div class="qty-control small">
+                      <button class="qty-btn" onclick="changeItemQty('${p.id}', ${item.qty - 1}, '${item.size || ''}')">−</button>
+                      <span class="qty-val">${item.qty}</span>
+                      <button class="qty-btn" onclick="changeItemQty('${p.id}', ${item.qty + 1}, '${item.size || ''}')">+</button>
+                    </div>
+                    <button class="cart-item-remove" onclick="removeItem('${p.id}', '${item.size || ''}')">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      Remove
+                    </button>
+                  </div>
+                </div>
+                <div class="cart-item-price">
+                  ${fmt(p.price * item.qty)}
+                  ${item.qty > 1 ? `<span class="unit-price">${fmt(p.price)} each</span>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+
+          <a href="shop.html" class="continue-shopping">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Continue shopping
+          </a>
+        </div>
+
+        <aside class="cart-summary">
+          <h3>Order Summary</h3>
+
+          <div class="promo-row">
+            <input type="text" id="promoCode" placeholder="Promo code">
+            <button class="btn btn-outline btn-sm" onclick="applyPromo()">Apply</button>
+          </div>
+          <div class="promo-hint">Try <strong>WELLNESS10</strong> for 10% off</div>
+
+          <div class="summary-line"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
+          <div class="summary-line"><span>Shipping</span><span>${shipping === 0 ? '<span class="free">FREE</span>' : fmt(shipping)}</span></div>
+          <div class="summary-line"><span>SST (6%)</span><span>${fmt(tax)}</span></div>
+          ${shipping > 0 ? `<div class="shipping-hint">💡 Add ${fmt(150 - subtotal)} more for free shipping</div>` : ''}
+
+          <div class="summary-total">
+            <span>Total</span>
+            <span>${fmt(total)}</span>
+          </div>
+
+          <a href="checkout.html" class="btn btn-primary btn-lg btn-block">
+            Proceed to Checkout
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+
+          <div class="checkout-trust">
+            <div class="trust-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Secure 256-bit SSL encrypted checkout</div>
+            <div class="trust-payments">
+              <span class="pay-pill">FPX</span>
+              <span class="pay-pill">VISA</span>
+              <span class="pay-pill">MC</span>
+              <span class="pay-pill">GrabPay</span>
+              <span class="pay-pill">TNG</span>
+              <span class="pay-pill">Boost</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    `;
+  }
+
+  window.changeItemQty = function(id, qty, size) {
+    if (qty < 1) { removeItem(id, size); return; }
+    Cart.updateQty(id, qty, size || null);
+    renderCart();
+  };
+
+  window.removeItem = function(id, size) {
+    Cart.remove(id, size || null);
+    renderCart();
+    showToast('Removed from cart');
+  };
+
+  window.applyPromo = function() {
+    const code = document.getElementById('promoCode').value.trim().toUpperCase();
+    if (code === 'WELLNESS10') {
+      Store.set('vs_promo', { code, discount: 0.1 });
+      showToast('Promo applied! 10% off');
+    } else {
+      showToast('Invalid code');
+    }
+  };
+
+  renderCart();
+</script>
+
+</body>
+</html>

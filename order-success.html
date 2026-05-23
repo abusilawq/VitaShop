@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed — VitaShop</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<section class="success-section">
+  <div class="container">
+    <div class="success-card">
+      <div class="success-icon">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="9 12 11 14 15 9"/>
+        </svg>
+      </div>
+      <h1>Thank you for your order!</h1>
+      <p class="success-sub">Your order has been confirmed and is being prepared for shipment.</p>
+
+      <div id="orderDetails"></div>
+
+      <div class="success-actions">
+        <a href="shop.html" class="btn btn-primary">Continue Shopping</a>
+        <a href="account.html" class="btn btn-outline">View My Orders</a>
+      </div>
+
+      <div class="success-extras">
+        <div class="extra-item">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+          <div>
+            <strong>Confirmation Email</strong>
+            <span>We've sent you order details</span>
+          </div>
+        </div>
+        <div class="extra-item">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          <div>
+            <strong>Same-Day Dispatch</strong>
+            <span>From our Klang Valley warehouse</span>
+          </div>
+        </div>
+        <div class="extra-item">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-12V5l-8-3-8 3v5c0 8 8 12 8 12z"/></svg>
+          <div>
+            <strong>30-Day Returns</strong>
+            <span>Hassle-free money back</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  initLayout('');
+
+  const orderId = new URLSearchParams(window.location.search).get('id');
+  const order = Store.get('vs_lastOrder');
+
+  if (order && (order.id === orderId || !orderId)) {
+    document.getElementById('orderDetails').innerHTML = `
+      <div class="order-receipt">
+        <div class="receipt-head">
+          <div>
+            <span class="receipt-label">Order Number</span>
+            <strong>${order.id}</strong>
+          </div>
+          <div>
+            <span class="receipt-label">Date</span>
+            <strong>${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
+          </div>
+          <div>
+            <span class="receipt-label">Payment</span>
+            <strong>${order.payment}</strong>
+          </div>
+          <div>
+            <span class="receipt-label">Total</span>
+            <strong>${fmt(order.total)}</strong>
+          </div>
+        </div>
+
+        <div class="receipt-items">
+          ${order.items.map(item => `
+            <div class="receipt-row">
+              <span>${item.name} ${item.size ? '(' + item.size + ')' : ''} × ${item.qty}</span>
+              <span>${fmt(item.price * item.qty)}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="receipt-totals">
+          <div class="receipt-row"><span>Subtotal</span><span>${fmt(order.subtotal)}</span></div>
+          ${order.discount > 0 ? `<div class="receipt-row"><span>Discount</span><span>-${fmt(order.discount)}</span></div>` : ''}
+          <div class="receipt-row"><span>Shipping</span><span>${order.shipping === 0 ? 'FREE' : fmt(order.shipping)}</span></div>
+          <div class="receipt-row"><span>SST</span><span>${fmt(order.tax)}</span></div>
+          <div class="receipt-row receipt-total"><span>Total</span><span>${fmt(order.total)}</span></div>
+        </div>
+
+        <div class="receipt-address">
+          <strong>Shipping to:</strong><br>
+          ${order.customer}<br>
+          ${order.address}
+        </div>
+      </div>
+    `;
+  } else {
+    document.getElementById('orderDetails').innerHTML = '<p>Order details not found.</p>';
+  }
+</script>
+
+</body>
+</html>
