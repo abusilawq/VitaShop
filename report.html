@@ -81,10 +81,10 @@ footer b{color:var(--cream-50)}
 
 <main class="wrap">
 
-  <p class="lead">While the hardware gives VitaShop its physical foundation, it is the software that customers actually see and interact with every day. The software layer covers the pages that make up the online store, the platform that hosts them, the way information is stored, and the tools our team used to build everything together. Each decision below was guided by three goals: keeping the store fast for shoppers, easy for us to maintain, and affordable to run as the business grows.</p>
+  <p class="lead">VitaShop is built entirely on standard web technologies — HTML5, CSS3 and JavaScript — hosted on Vercel and version-controlled through GitHub. Every tool choice prioritises speed for shoppers, simplicity for the team, and zero licensing cost.</p>
 
   <h3 class="sub">4.1 Front-End Software</h3>
-  <p>The front end is everything the customer sees inside their browser. VitaShop's entire storefront is built on three standard web technologies — <b>HTML5</b> for the structure of each page, <b>CSS3</b> for the styling and responsive layout, and plain (vanilla) <b>JavaScript</b> for interactive features such as the shopping cart, product filtering, live search and the image gallery. Before settling on this approach, we weighed a lightweight native stack against using a larger JavaScript framework.</p>
+  <p>VitaShop's storefront uses <b>HTML5</b> for page structure, <b>CSS3</b> for responsive layout, and vanilla <b>JavaScript</b> for the cart, filtering, live search and gallery. We compared this native approach with a JavaScript framework before deciding.</p>
   <table>
     <thead><tr><th>Criteria</th><th>Native Stack (HTML5 + CSS3 + JS)</th><th>JavaScript Framework (React / Next.js)</th></tr></thead>
     <tbody>
@@ -95,10 +95,10 @@ footer b{color:var(--cream-50)}
       <tr><td>Cost</td><td>Free, open web standards</td><td>Free, but higher development time</td></tr>
     </tbody>
   </table>
-  <div class="decision"><b>Decision:</b> VitaShop is built on the native HTML, CSS and JavaScript stack. For a catalogue store of this size the pages load almost instantly, any team member can edit a file and see the result immediately, and there are no licensing fees or complicated build tools to manage — yet the interface still looks modern and professional.</div>
+  <div class="decision"><b>Decision:</b> The native stack was chosen because pages load instantly with no framework overhead, and any team member can edit a file and see the result straight away.</div>
 
   <h3 class="sub">4.2 Application Pages (Software Structure)</h3>
-  <p>Rather than one large program, VitaShop is made up of a set of individual web pages, each responsible for one stage of the shopping journey. They all share a single stylesheet (<code>styles.css</code>) and two scripts — <code>app.js</code>, which holds the shared logic such as the cart and login, and <code>data.js</code>, which holds the product catalogue. Keeping these shared files in one place means the design stays consistent and a single edit updates every page at once. The complete source code is kept on GitHub, and the table below lists the main pages that make up the system.</p>
+  <p>VitaShop is a set of individual pages sharing one stylesheet (<code>styles.css</code>) and two scripts — <code>app.js</code> (cart, login, shared logic) and <code>data.js</code> (product catalogue). A single edit to a shared file updates every page at once.</p>
   <table>
     <thead><tr><th>Page</th><th>File</th><th>Purpose</th></tr></thead>
     <tbody>
@@ -112,7 +112,7 @@ footer b{color:var(--cream-50)}
       <tr><td>About / Contact</td><td><code>about.html</code>, <code>contact.html</code></td><td>Company information and enquiries</td></tr>
     </tbody>
   </table>
-  <p>The figures below show how this code renders into the finished design that customers experience.</p>
+  <p>The figures below show how this structure renders into the finished store.</p>
 
   <figure><img src="report-assets/home-top.png" alt="Home page"><figcaption>Figure 4.1 — Home page: hero section, headline and key trust statistics.</figcaption></figure>
   <figure><img src="report-assets/shop-top.png" alt="Shop page"><figcaption>Figure 4.2 — Shop page: category filters, live search, sorting and product grid.</figcaption></figure>
@@ -120,7 +120,7 @@ footer b{color:var(--cream-50)}
   <figure><img src="report-assets/account.png" alt="Account page"><figcaption>Figure 4.4 — Customer account: order history, subscription, profile and addresses.</figcaption></figure>
 
   <h3 class="sub">4.3 Hosting &amp; Deployment Software</h3>
-  <p>VitaShop's code lives on <b>GitHub</b>, and the live website is hosted on <b>Vercel</b>. The two are linked together: whenever we push an update to GitHub, Vercel automatically rebuilds and republishes the site within seconds, so customers always see the newest version without any files being uploaded by hand. This connection between the repository and the live design is what turns the source code into the working store shown in the figures above.</p>
+  <p>VitaShop's code is version-controlled on <b>GitHub</b> and deployed on <b>Vercel</b>. Every push to GitHub triggers an automatic rebuild and republish within seconds — no manual file uploads needed.</p>
   <table>
     <thead><tr><th>Criteria</th><th>Vercel (Cloud Platform)</th><th>Traditional Shared Hosting</th></tr></thead>
     <tbody>
@@ -130,10 +130,10 @@ footer b{color:var(--cream-50)}
       <tr><td>Scaling</td><td>Absorbs traffic spikes automatically</td><td>Limited by the chosen plan</td></tr>
     </tbody>
   </table>
-  <div class="decision"><b>Decision:</b> Vercel was chosen for its zero-cost entry, automatic deployment straight from GitHub, and global content delivery, which together remove almost all server-administration work from the team.</div>
+  <div class="decision"><b>Decision:</b> Vercel's free tier, automatic GitHub deploys and global CDN eliminate server-administration work entirely at launch.</div>
 
   <h3 class="sub">4.4 Data Storage Software</h3>
-  <p>In the current version, information such as the shopping cart, the signed-in user and past orders is saved using <b>localStorage</b>, a small storage space built into every web browser. This lets the cart and account work instantly without needing a separate database server running in the background, which keeps the demonstration simple and free to host.</p>
+  <p>Cart contents, the signed-in user and order history are stored in <b>localStorage</b>, a storage space built into every browser. No back-end server is needed, keeping the demonstration free to host.</p>
   <table>
     <thead><tr><th>Criteria</th><th>Browser localStorage</th><th>Server Database (MySQL)</th></tr></thead>
     <tbody>
@@ -142,17 +142,34 @@ footer b{color:var(--cream-50)}
       <tr><td>Best for</td><td>Prototype / demonstration</td><td>Large-scale production with many users</td></tr>
     </tbody>
   </table>
-  <div class="decision"><b>Decision:</b> localStorage is used for the current demonstration because it is free and needs no back-end. As VitaShop grows, this would be upgraded to a managed cloud database (for example MySQL on AWS RDS) so that customer data is stored securely and shared across devices.</div>
+  <div class="decision"><b>Decision:</b> localStorage suits the current prototype; a managed cloud database (e.g. MySQL on AWS RDS) would replace it as VitaShop scales to real users.</div>
 
   <h3 class="sub">4.5 Development &amp; Supporting Software</h3>
-  <p>The site was written in <b>Visual Studio Code</b>, a free and widely used code editor, while <b>Git</b> and <b>GitHub</b> handled version control so that every change is tracked and the team can work together without overwriting each other's work. We used <b>Google Chrome DevTools</b> throughout development to test how the layout responds across desktop, tablet and mobile screens (Figure 4.5). Notably, every tool in the VitaShop software stack is free and based on open web standards, which keeps the whole project lightweight and genuinely cost-effective.</p>
-  <p style="margin-bottom:.4rem"><span class="tag">VS Code</span><span class="tag">Git</span><span class="tag">GitHub</span><span class="tag">Vercel</span><span class="tag">Chrome DevTools</span></p>
+  <p>The site was written in <b>Visual Studio Code</b>, with <b>Git</b> and <b>GitHub</b> handling version control. <b>Google Chrome DevTools</b> was used to verify responsive layouts across screen sizes (Figure 4.5). <b>Canva</b> was used to create UI mockups and product graphics, and <b>Google Analytics</b> tracks visitor behaviour on the live site.</p>
+  <p style="margin-bottom:.4rem"><span class="tag">VS Code</span><span class="tag">Git</span><span class="tag">GitHub</span><span class="tag">Vercel</span><span class="tag">Chrome DevTools</span><span class="tag">Canva</span><span class="tag">Google Analytics</span></p>
   <div class="phones">
     <img src="report-assets/home-m.png" alt="Home on mobile">
     <img src="report-assets/shop-m.png" alt="Shop on mobile">
     <img src="report-assets/product-m.png" alt="Product on mobile">
   </div>
   <figcaption style="text-align:center;margin-top:.6rem;font-style:italic;color:var(--ink-mute);font-size:.85rem">Figure 4.5 — The same pages on a mobile screen, confirming the responsive design.</figcaption>
+
+  <h3 class="sub">4.6 End-User Software Requirements</h3>
+  <p>Customers need no installation — any modern browser on any device is enough. The table below lists the minimum tested versions.</p>
+  <table>
+    <thead><tr><th>Browser</th><th>Min Version</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Google Chrome</td><td>90+</td><td>Recommended — best tested</td></tr>
+      <tr><td>Mozilla Firefox</td><td>88+</td><td>Full support</td></tr>
+      <tr><td>Microsoft Edge</td><td>90+</td><td>Full support</td></tr>
+      <tr><td>Safari (macOS / iOS)</td><td>14+</td><td>iPhone, iPad and Mac</td></tr>
+      <tr><td>Chrome for Android</td><td>90+</td><td>Android phones</td></tr>
+    </tbody>
+  </table>
+  <p>All features — localStorage, CSS Grid, Flexbox and ES6 JavaScript — are natively supported in the versions above. No plugins or extensions are needed.</p>
+
+  <h3 class="sub">4.7 Admin &amp; Supporting Tools</h3>
+  <p>VitaShop includes a built-in admin area for managing products and orders. The admin pages are <code>admin/dashboard.html</code>, <code>admin/products.html</code>, <code>admin/orders.html</code>, <code>admin/customers.html</code> and <code>admin/analytics.html</code> — all accessible from a single login with no extra software required. For the contact form, <b>EmailJS</b> (free tier) handles message delivery directly from the browser without a back-end server.</p>
 
 </main>
 
